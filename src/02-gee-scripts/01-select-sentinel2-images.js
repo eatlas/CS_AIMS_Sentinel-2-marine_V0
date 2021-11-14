@@ -15,13 +15,18 @@
 var s2Tiles = ee.FeatureCollection("users/ericlawrey/World_ESA_Sentinel-2-tiling-grid");
 var utils = require('users/ericlawrey/CS_AIMS_Sentinel2-marine_V0:utils');
  
-// Date range to iterate through
+// Date range to iterate through the Sentinel 2 imagery.
 var START_DATE = ee.Date('2015-01-01');
 var END_DATE = ee.Date('2021-09-20');
 
 // Maximum cloud cover to include the image. Setting a low value removes
 // images that have lots of cloud that will probably not be useful for
-// subsequent processing.
+// subsequent processing. 
+// In most areas setting this to 1 (%) means that about 30 - 50% of the
+// images are useful for generating final composite images. 
+// In some areas where there are very few images available. In which case
+// this can be raised up to 100 (%) to allow previewing of all available
+// imagery.
 var CLOUDY_PIXEL_PERCENTAGE = 1;
 
 // If true then images that are only a small fraction of the tile are
@@ -54,6 +59,8 @@ var tileID;
 // regions in the Coral Sea. They are not based on any offical classification.
 // Where a reef has been split across multiple tiles then which section of the reef is
 // on the tile is indicated in brackets after the reef name.
+
+//tileID = '55LBK';     // Boot Reef, Portlock Reefs (Coral Sea) - Far North
 //tileID = '54LZP';     // Ashmore Reef (Coral Sea) - Far North
 //tileID = '55LDE';     // Osprey Reef (Coral Sea) - North
 //tileID = '55LEC';     // Bougainville Reef (Coral Sea) - Central
@@ -73,25 +80,87 @@ var tileID;
                         // (Coral Sea) - Central
 //tileID = '56KKF';     // Tregrosse Reefs, Diamond Islet (Coral Sea) - Central
 //tileID = '56KLF';     // (V0) Lihou reef (South West) (Coral Sea, Australia) - Central
-tileID = '56KMF';     // Lihou reef (West) (Coral Sea, Australia) - Central
+//tileID = '56KMF';     // Lihou reef (West) (Coral Sea, Australia) - Central
 //tileID = '56KQF';     // Mellish Reef (Coral Sea) - Central
+                        // This tile only had 2 images with < 1% cloud cover,
+                        // neither of them were useful.
+                        // Raising the threshold to 3% only gave 5 images, none
+                        // of which were useful. We therefore instead use the neighbouring
+                        // tile to pick up Mellish Reef.
+//tileID = '56KRF';     // Mellish Reef (Coral Sea) - Central
+                        // Raising the CLOUDY_PIXEL_PERCENTAGE to 10% still
+                        // only resulted in 6 images. All of which were used.
 //tileID = '56KME';     // (V0) Marion Reef (North) (Coral Sea, Australia) - Central
 //tileID = '56KMD';     // (V0) Marion Reef (South) (Coral Sea, Australia) - Central
 //tileID = '56KPC';     // Calder Bank, Coral Sea - South
 //tileID = '56KNB';     // Saumarez Reefs (North) (Coral Sea, Australia) - South
 //tileID = '56KPB';     // (V0) Frederick Reef (Coral Sea, Australia) - South
-//tileID = '56KQB';     // Ken Reefs (Coral Sea) - South
+//tileID = '56KQB';     // Kenn Reefs (Coral Sea) - South
 //tileID = '56KNA';     // Saumarez Reefs (South) (Coral Sea) - South
 //tileID = '56KQA';     // Wreck Reefs (Coral Sea) - South
 //tileID = '56KQV';     // Cato Reef (Coral Sea) - South
+//tileID = '55LCJ';     // Eastern Fields (PNG) - Far North (Just ouside Coral Sea Marine Park)
+
+
+// Sea mounts that probably don't have reefs.
+//tileID = '56KQU';     // Fraser Seamount - South
+//tileID = '56KQE';     // U/N Sea mount - Central AUS04634 - 29 m feature in marine chart 
+                      // Only partial image scenes. 16 images, but none with clear
+                      // view over reef area.
+//tileID = '57KTS';   // Selfridge Rock (https://web.archive.org/web/20130305015208/http://www.shom.fr/fileadmin/data-www/01-LE_SHOM/02-ACTUALITES/01-LES_COMMUNIQUES/fig_2_-_Sandy_Island.png)
+                    // Only one image and it has high cloud cover
+//tileID = '57KUS';   // Selfridge Rock 2 images but neither are useful.
+//tileID = '56KRB';   // Obstn Rep (1962) AUS04643 - only 1 image covered in clouds
 
 //tileID = '56KKG';   // Magdelaine Cays, Coringa Islet (Coral Sea, Australia) (Boundaries: 8, Dry Reefs: 2, Cays/Islands: 2 )
+
+
+// Potential shallow areas in Eastern Coral Sea
+// These areas were identified as having potentially shallow areas based
+// on the SRTM30-plus v8.0 dataset. 
+//tileID = '57KXT';   
+//tileID = '57KYT';       // Lansdowne Bank (potential 29 m Obstn)
+//tileID = '57KYS';
+//tileID = '57KZS';
+//tileID = '57KXS';
+//tileID = '57KWP';
+//tileID = '57JWN';
+
+// ------------- Global test reefs --------------
+// Reefs around the world for testing the definition of reef boundaries
+
+// Drowned coral atoll reefs because of subsidence 
+//tileID = '56NLP';   // Federated States of Micronesia
+//tileID = '55PHK';   // Federated States of Micronesia
+
+// Near surface drowned continental areas
+//tileID = '41LMJ';   // Saya de Malha Banks (1 image, not much vis)
+//tileID = '41LLJ';   // Saya de Malha Banks (6 images, 2 usable images)
+//tileID = '41LLK';   // Saya de Malha Banks 
+
+//tileID = '57KVV';   // Chesterfield Reefs
+//tileID = '57KVU';   // Chesterfield Reefs
+//tileID = '57KVT';   // Chesterfield Reefs
+//tileID = '57KVS';   // Chesterfield Reefs
+//tileID = '57KWS';   // Chesterfield Reefs
+//tileID = '57KWR';   // Chesterfield Reefs
+
+// Coral atolls in areas where the sea floor has been uplifted 
+//tileID = '';   // Palau
+
+
+tileID = '54LXQ';
+// Date range to iterate through the Sentinel 2 imagery.
+START_DATE = ee.Date('2021-10-25');
+END_DATE = ee.Date('2021-10-30');
+var CLOUDY_PIXEL_PERCENTAGE = 100;
 
 // Find the feature that corresponds to the specified tileID.
 // Filter to Australia. This is to reduce the number of tiles that need 
 // to be searched.
-var ausTropicsTiles = s2Tiles.filterBounds(ee.Geometry.BBox(109, -33, 158, -7));
-var tileFeature = ausTropicsTiles.filter(ee.Filter.equals('Name', tileID));
+//var ausTropicsTiles = s2Tiles.filterBounds(ee.Geometry.BBox(109, -33, 165, -7));
+//var tileFeature = ausTropicsTiles.filter(ee.Filter.equals('Name', tileID));
+var tileFeature = s2Tiles.filter(ee.Filter.equals('Name', tileID));
 
 
 // =================================================================
@@ -127,7 +196,7 @@ var setImageByDate = function(date) {
   Map.addLayer(trueColour_composite, visParams, 'Sentinel-2 True Colour',false);
   
   var deepMarine_composite = utils.bake_s2_colour_grading(composite, 'DeepMarine', includeCloudmask);
-  Map.addLayer(deepMarine_composite, visParams, 'Sentinel-2 Deep Marine',true);
+  Map.addLayer(deepMarine_composite, visParams, 'Sentinel-2 Deep Marine',false);
 
   var reefTop_composite = utils.bake_s2_colour_grading(composite, 'ReefTop', includeCloudmask);
   Map.addLayer(reefTop_composite, visParams, 'Sentinel-2 ReefTop',false);
@@ -138,6 +207,8 @@ var setImageByDate = function(date) {
   Map.addLayer(deepMarine_composite.select('vis-blue'), visParams, 'Sentinel-2 Deep Marine vis-blue',false);
   Map.addLayer(deepMarine_composite.select('vis-green'), visParams, 'Sentinel-2 Deep Marine vis-green',false);
   Map.addLayer(deepMarine_composite.select('vis-red'), visParams, 'Sentinel-2 Deep Marine vis-red',false);
+  var deepFalse_composite = utils.bake_s2_colour_grading(composite, 'DeepFalse', includeCloudmask);
+  Map.addLayer(deepFalse_composite, visParams, 'Sentinel-2 DeefFalse',true);
   
   Map.addLayer(composite.select("B2"), {'min': 650, 'max': 1500, 'gamma': 2}, 'Sentinel-2 B2 raw',false);
   Map.addLayer(composite.select("B8"), {'min': 0, 'max': 1500, 'gamma': 2}, 'Sentinel-2 B8 raw',false);
