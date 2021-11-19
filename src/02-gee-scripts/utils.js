@@ -21,16 +21,16 @@
  * @param {boolean} is_export -     If true then generate exports of the image
  * @param {object} options -        Map of optional parameters listed below. Typical example: 
  *                                  var OPTIONS = {
- *                                    colourGrades: ['TrueColour'],
+ *                                    colourGrades: ['TrueColour','DeepFalse'],
  *                                    exportBasename: 'AU_AIMS_Sentinel2-marine_V1',
- *                                    exportFolder: 'EarthEngine\\AU_AIMS_Sentinel2-marine_V1'
+ *                                    exportFolder: 'EarthEngine\\AU_AIMS_Sentinel2-marine_V1',
+ *                                    scale: 10
  *                                  };
- *        {string} colourGrades -   Array of names of colourGrades to apply to the image and
- *                                  prepare for exporting.
- *                                  'TrueColour'  - Relatively faithful true colour reproduction 
- *                                  (note: sunglint remove does introduce some issues)
- *                                  'DeepFeature' - High contrast difference between green and blue 
- *                                  bands for detecting deep seagrass. Grey scale image.
+ *        [{string}] colourGrades - Array of names of colourGrades to apply to the image and
+ *                                  prepare for exporting. The allowable styles correspond to
+ *                                  those supported by bake_s2_colour_grading(). These are:
+ *                                  'TrueColour', 'DeepMarine', 'DeepFalse' , 'DeepFeature', 
+ *                                  'Shallow', 'ReefTop' 
  *        {string} exportBasename - Base name of the export image file. The colourGrade
  *                                  and the image Sentinel tile IDs are appended to the
  *                                  image name. This approach is most appropriate for
@@ -41,8 +41,11 @@
  *                                  {date range}-n{number of images}
  *        {string} exportFolder -   Folder in Google Drive to export the image to. The colourGrade
  *                                  is appended to the folder to file tiles based on colourGrades.
-
-
+ *        {integer} scale -         Default scale to apply to the exports in metres. For Sentinel 2
+ *                                  full resolution exports would be 10. Set scale higher if you
+ *                                  wish to lower the resolution of the export. It is probably
+ *                                  wise to keep it a ratio of the native image resolution of 10 m
+ *                                  for best quality, noting I have not tested this theory.
  */
 exports.s2_composite_display_and_export = function(
     imageIds, is_display, is_export, options) {
@@ -50,6 +53,8 @@ exports.s2_composite_display_and_export = function(
   var colourGrades = options.colourGrades;
   var exportFolder = options.exportFolder;
   var exportBasename = options.exportBasename;
+  
+  
   
   // Skip over if nothing to do
   if (!(is_export || is_display)) {
@@ -126,13 +131,23 @@ exports.s2_composite_display_and_export = function(
   var s2_cloud_collection = exports.get_s2_cloud_collection(imageIds, tilesGeometry);
 
   var composite = s2_cloud_collection
-    .map(exports.removeSunGlint)
-    .map(exports.add_s2_cloud_shadow_mask)
-    .map(exports.apply_cloud_shadow_mask)
-    .reduce(ee.Reducer.percentile([50],["p50"]))
-    .rename(['B1','B2','B3','B4','B5','B6','B7','B8',
-      'B8A','B9','B10','B11','B12','QA10','QA20','QA60','cloudmask']);
-    //.median();
+    .map(exports.removeSunGlint);
+  
+  // Don't apply a cloud mask if there is only a single image
+  var applyCloudMask = imageIds.length > 1;
+  if (applyCloudMask) {
+    composite = composite.map(exports.add_s2_cloud_shadow_mask)
+      .map(exports.apply_cloud_shadow_mask)
+      .reduce(ee.Reducer.percentile([50],["p50"]))
+      .rename(['B1','B2','B3','B4','B5','B6','B7','B8',
+        'B8A','B9','B10','B11','B12','QA10','QA20','QA60','cloudmask']);
+  } else {
+
+    composite = composite
+      .reduce(ee.Reducer.percentile([50],["p50"]))
+      .rename(['B1','B2','B3','B4','B5','B6','B7','B8',
+        'B8A','B9','B10','B11','B12','QA10','QA20','QA60']);
+  }
     
   var includeCloudmask = false;
   
@@ -187,7 +202,7 @@ exports.s2_composite_display_and_export = function(
       }
     } 
   }
-}
+};
 
 
 /**
@@ -503,6 +518,7 @@ exports.removeSunGlint = function(image) {
 };
 
 /**
+ * This function is deprecated in preference of 'removeSunGlint()'.
  * This function estimates the sunglint from the B8 Sentinel channel.
  * This estimate is then subtracted from the visible colour bands to
  * create a new image. The compensation only works for images with
@@ -773,10 +789,26 @@ exports.apply_cloud_shadow_mask = function(img) {
  * This rescales the data from 0 - 1.
  * @param {ee.Image} img - image to colour grade
  * @param {string} colourGradeStyle - 
- *      'TrueColour'  - Relatively faithful true colour reproduction (note: sunglint remove does introduce some issues)
+ *      'TrueColour'  - Relatively faithful true colour reproduction (note: sunglint remove 
+ *                      does introduce some small issues at the water land boundary)
  *      'DeepMarine'  - Focus on deeper marine features.
+ *      'DeepFalse'   - False colour image from Ultra violet (B1), Blue (B2) and Green that shows
+ *                      deep marine features well in clear waters.
  *      'DeepFeature' - High contrast difference between green and blue bands for detecting deep seagrass.
- *                      Grey scale image.
+ *                      Grey scale image. This style has not been well tested or tuned.
+ *      'Shallow'     - False colour image that highlights shallow areas. This is useful
+ *                      for determining islands and cays, along with dry exposed reef areas.
+ *                      It is determined B5, B8 and B11.
+ *      'ReefTop'     - This is a grey scale image with a threshold that is applied to the
+ *                      red channel (B4) to approximate reef top areas (~5 m depth) in 
+ *                      clear oceananic water. This is close to a binary mask, but has a
+ *                      small smooth grey scale transition to help with smooth digitisation.
+ *                      This reef top masking has a 10 m radius circular spatial filter applied to
+ *                      the image to reduce the noise. The threshold chosen was intended to be close
+ *                      to the deepest features visible in red, as this will naturally be close to
+ *                      a 6 m depth. The threshold was raised above the noise floor to reduce false
+ *                      positives. This threshold was chosen to not have too many false positive 
+ *                      in the coral sea, where waves contribute significant noise into the red channel.
  * @param {Boolean} processCloudMask - If true then copy over the cloudMask band.
  *            This is a slight hack because I couldn't work out how to perform
  *            conditional GEE server side execution, and cloning the original
@@ -789,6 +821,7 @@ exports.bake_s2_colour_grading = function(img, colourGradeStyle, processCloudMas
   var B4contrast;
   var B3contrast;
   var B2contrast;
+  var B1contrast;
   if (colourGradeStyle === 'TrueColour') {
     //B4contrast = exports.contrastEnhance(scaled_img.select('B4'),0.013,0.17, 2);
     //B3contrast = exports.contrastEnhance(scaled_img.select('B3'),0.025,0.19, 2);
@@ -807,6 +840,17 @@ exports.bake_s2_colour_grading = function(img, colourGradeStyle, processCloudMas
     B3contrast = exports.contrastEnhance(scaled_img.select('B3'),0.033,0.12, 2.5);
     B2contrast = exports.contrastEnhance(scaled_img.select('B2'),0.07,0.13, 2.5); //0.067
     compositeContrast = ee.Image.rgb(B4contrast, B3contrast, B2contrast);
+  } else if (colourGradeStyle === 'DeepFalse') {
+    
+    //B3contrast = exports.contrastEnhance(scaled_img.select('B3'),0.0355,0.175, 2.5);
+    //B2contrast = exports.contrastEnhance(scaled_img.select('B2'),0.074,0.175, 2.5);
+    //B1contrast = exports.contrastEnhance(scaled_img.select('B1'),0.109,0.177, 2.5); 
+    
+    B3contrast = exports.contrastEnhance(scaled_img.select('B3'),0.034,0.175, 2.5);
+    B2contrast = exports.contrastEnhance(scaled_img.select('B2'),0.071,0.175, 2.5);
+    B1contrast = exports.contrastEnhance(scaled_img.select('B1'),0.103,0.177, 2.5); 
+    compositeContrast = ee.Image.rgb(B3contrast, B2contrast, B1contrast);
+
   } else if (colourGradeStyle === 'ReefTop') {
     //B4contrast = exports.contrastEnhance(scaled_img.select('B4'),0.02,0.021, 1);
     //var B5contrast = exports.contrastEnhance(scaled_img.select('B5'),0.02,0.05, 1);
@@ -825,6 +869,7 @@ exports.bake_s2_colour_grading = function(img, colourGradeStyle, processCloudMas
     var B8contrast = exports.contrastEnhance(scaled_img.select('B8'),0.02,0.3, 2);
     var B11contrast = exports.contrastEnhance(scaled_img.select('B11'),0.02,0.3, 2);
     compositeContrast = ee.Image.rgb(B11contrast, B8contrast, B5contrast);
+
   } else if (colourGradeStyle === 'DeepFeature') {
     var B3 = exports.contrastEnhance(scaled_img.select('B3'),0.027,0.17, 4);
     var B2 = exports.contrastEnhance(scaled_img.select('B2'),0.06,0.15, 3.3);

@@ -8,10 +8,12 @@ var utils = require('users/ericlawrey/CS_AIMS_Sentinel2-marine_V0:utils');
 // The primary reference imagery should correspond to a composite
 // made from the best set of images available, with the goal being
 // to get the cleanest image.
+
 var REF1_OPTIONS = {
-  colourGrades: ['TrueColour','DeepMarine','ReefTop','Shallow'],
+  colourGrades: ['DeepFalse'],
   exportBasename: 'CS_AIMS_Sentinel2-marine_V0_R1',
-  exportFolder: 'EarthEngine/CS_AIMS_Sentinel2-marine_V0'
+  exportFolder: 'EarthEngine/CS_AIMS_Sentinel2-marine_V0',
+  scale: 10
 };
 
 // These options correspond to the secondary reference imagery.
@@ -19,9 +21,10 @@ var REF1_OPTIONS = {
 // is to provide a second set of imagery to determine if spots
 // in the imagery are artefacts (from clouds) or real features.
 var REF2_OPTIONS = {
-  colourGrades: ['DeepMarine'],
+  colourGrades: ['DeepFalse'],
   exportBasename: 'CS_AIMS_Sentinel2-marine_V0_R2',
-  exportFolder: 'EarthEngine/CS_AIMS_Sentinel2-marine_V0'
+  exportFolder: 'EarthEngine/CS_AIMS_Sentinel2-marine_V0',
+  scale: 10
 };
 
 // These options correspond to individual non-composite images.
@@ -36,6 +39,24 @@ var REF2_OPTIONS = {
 //
 // ===============================================================
 
+// ==== Boot Reef, Portlock Reefs (Coral Sea) - Far North ===
+// CLOUD_PIXEL_PERCENTAGE 1%
+// There were not sufficient good images to create a second
+// reference image.
+// 19 of 19 images
+utils.s2_composite_display_and_export(
+  [
+    // Maybe
+		"COPERNICUS/S2/20190115T004709_20190115T004705_T55LBK",
+		"COPERNICUS/S2/20190510T004711_20190510T004710_T55LBK",
+		"COPERNICUS/S2/20190907T004711_20190907T004705_T55LBK",
+		"COPERNICUS/S2/20200613T004711_20200613T004712_T55LBK",
+		"COPERNICUS/S2/20200822T004711_20200822T004712_T55LBK",
+		"COPERNICUS/S2/20210802T004709_20210802T004707_T55LBK"
+  ],
+  false, false, REF1_OPTIONS);
+
+  
 // ======== Ashmore Reef (Coral Sea) - Far North =========
 // Good images
 utils.s2_composite_display_and_export(
@@ -44,7 +65,7 @@ utils.s2_composite_display_and_export(
 		"COPERNICUS/S2/20200822T004711_20200822T004712_T54LZP",
 		"COPERNICUS/S2/20210603T004709_20210603T004707_T54LZP"
   ],
-  false, false, REF1_OPTIONS);
+  true, false, REF1_OPTIONS);
 
 // OK images
 utils.s2_composite_display_and_export(
@@ -536,7 +557,7 @@ utils.s2_composite_display_and_export(
 		"COPERNICUS/S2/20190702T001119_20190702T001117_T56KLF",
 		"COPERNICUS/S2/20190811T001119_20190811T001116_T56KLF"
   ],
-  false, true, REF1_OPTIONS);
+  false, false, REF1_OPTIONS);
 
 utils.s2_composite_display_and_export(
   [
@@ -551,7 +572,7 @@ utils.s2_composite_display_and_export(
 		"COPERNICUS/S2/20190821T001119_20190821T001114_T56KLF",
 		"COPERNICUS/S2/20190930T001109_20190930T001109_T56KLF"
   ],
-  false, true, REF2_OPTIONS);
+  false, false, REF2_OPTIONS);
 
 // Maybe
 // COPERNICUS/S2/20170930T001059_20170930T001053_T56KLF
@@ -579,7 +600,7 @@ utils.s2_composite_display_and_export(
 		"COPERNICUS/S2/20190702T001119_20190702T001117_T56KMF",
 		"COPERNICUS/S2/20200731T001121_20200731T001115_T56KMF"
   ],
-  false, true, REF1_OPTIONS);
+  false, false, REF1_OPTIONS);
 
 
 // OK images
@@ -591,17 +612,26 @@ utils.s2_composite_display_and_export(
 		"COPERNICUS/S2/20200502T001111_20200502T001112_T56KMF",
 		"COPERNICUS/S2/20200815T001109_20200815T001112_T56KMF"
   ],
-  false, true, REF2_OPTIONS);
+  false, false, REF2_OPTIONS);
 
 // Maybe
 // COPERNICUS/S2/20180707T001109_20180707T001107_T56KMF
 
+
+
 // ======== Mellish Reef (Coral Sea) =========
-// Searched X out of Y images
+// Mellish Reef lies right on the boundary between two image tiles.
+// The original planned tile of 56KQF did not have any good images
+// and so the neighbouring 56KRF tile images were used instead.
+// The CLOUDY_PIXEL_PERCENTAGE was raised to 10% rather than the usual
+// 1%. This still only resulted in 6 images, of which all images were used.
+// Searched 6 out of 6 images
 // OK images
 utils.s2_composite_display_and_export(
   [
-    
+    "COPERNICUS/S2/20160107T235158_20160108T011818_T56KRF",
+		"COPERNICUS/S2/20160406T234954_20160407T043438_T56KRF",
+		"COPERNICUS/S2/20160416T235041_20160417T061750_T56KRF"
   ],
   false, false, REF1_OPTIONS);
 
@@ -609,7 +639,9 @@ utils.s2_composite_display_and_export(
 // Maybe images
 utils.s2_composite_display_and_export(
   [
-    
+    "COPERNICUS/S2/20151128T234812_20170509T143613_T56KRF",
+		"COPERNICUS/S2/20151208T234812_20170605T053015_T56KRF",
+		"COPERNICUS/S2/20160117T234812_20160117T235108_T56KRF"
   ],
   false, false, REF2_OPTIONS);  
 
@@ -664,39 +696,43 @@ utils.s2_composite_display_and_export(
 
 
 // ======== Calder Bank, Coral Sea =========
-// Searched X out of Y images
-// OK images
-utils.s2_composite_display_and_export(
-  [
-    
-  ],
-  false, false, REF1_OPTIONS);
-
-
+// The CLOUD_PIXEL_PERCENTAGE was increased to 80% to get more images
+// Unfortunately on 8 images were available. As a result no second
+// reference image was created due to a lack of imagery.
+// Searched 8 out of 8 images
 // Maybe images
 utils.s2_composite_display_and_export(
   [
-    
+    "COPERNICUS/S2/20170902T000111_20170902T000107_T56KPC",
+    "COPERNICUS/S2/20170907T000119_20170907T000114_T56KPC"
   ],
-  false, false, REF2_OPTIONS); 
-  
+  false, false, REF1_OPTIONS);
 
 
 
 // ======== Saumarez Reefs (North) =========
-// Searched X out of Y images
-// OK images
+// Searched 18 out of 18 images
 utils.s2_composite_display_and_export(
   [
-    
+    // Excellent
+		"COPERNICUS/S2/20160927T000212_20160927T000213_T56KNB",
+		"COPERNICUS/S2/20160609T000222_20160609T000222_T56KNB",
+		// Good
+		"COPERNICUS/S2/20160410T000222_20160410T000216_T56KNB",
+		"COPERNICUS/S2/20170515T000221_20170515T000221_T56KNB",
+		"COPERNICUS/S2/20170729T000219_20170729T000217_T56KNB"
   ],
   false, false, REF1_OPTIONS);
 
 
-// Maybe images
+// OK images
 utils.s2_composite_display_and_export(
   [
-    
+    "COPERNICUS/S2/20170214T000211_20170214T000212_T56KNB",
+		"COPERNICUS/S2/20170415T000221_20170415T000217_T56KNB",
+		"COPERNICUS/S2/20170525T000221_20170525T000220_T56KNB",
+		"COPERNICUS/S2/20170704T000221_20170704T000217_T56KNB",
+		"COPERNICUS/S2/20170823T000221_20170823T000219_T56KNB"
   ],
   false, false, REF2_OPTIONS); 
 
@@ -705,10 +741,14 @@ utils.s2_composite_display_and_export(
 
 
 // ======== Frederick Reef (Coral Sea, Australia) ============
-// Good images
+// CLOUD_PIXEL_PERCENTAGE 3%
+// 24 of 24 images
+// Excellent images
 utils.s2_composite_display_and_export(
   [
-    "COPERNICUS/S2/20160609T000222_20160609T000222_T56KPB"
+    "COPERNICUS/S2/20160609T000222_20160609T000222_T56KPB",
+		"COPERNICUS/S2/20160927T000212_20160927T000213_T56KPB",
+		"COPERNICUS/S2/20170525T000221_20170525T000220_T56KPB"
   ],
   false, false, REF1_OPTIONS);
 
@@ -716,13 +756,20 @@ utils.s2_composite_display_and_export(
 // OK images
 utils.s2_composite_display_and_export(
   [
-    "COPERNICUS/S2/20160410T000216_20160410T012205_T56KPB",
-		"COPERNICUS/S2/20160927T000212_20160927T000213_T56KPB",
+    // Good                                              
 		"COPERNICUS/S2/20170515T000221_20170515T000221_T56KPB",
-		"COPERNICUS/S2/20170525T000221_20170525T000220_T56KPB",
-		"COPERNICUS/S2/20170729T000219_20170729T000217_T56KPB"
+		"COPERNICUS/S2/20170729T000219_20170729T000217_T56KPB",
+		// OK                                                
+		"COPERNICUS/S2/20160410T000216_20160410T012205_T56KPB",
+		"COPERNICUS/S2/20160420T000219_20160420T012157_T56KPB"
   ],
   false, false, REF2_OPTIONS);
+// Maybe
+// COPERNICUS/S2/20160530T000222_20160530T000223_T56KPB
+// COPERNICUS/S2/20160709T000221_20160709T012229_T56KPB
+// COPERNICUS/S2/20170704T000221_20170704T000217_T56KPB
+// COPERNICUS/S2/20170907T000119_20170907T000114_T56KPB
+// COPERNICUS/S2/20170818T000219_20170818T000215_T56KPB
 
 //    Low tide                                             
 //		"COPERNICUS/S2/20170704T000221_20170704T000217_T56KPB",
@@ -737,77 +784,175 @@ utils.s2_composite_display_and_export(
 
 
 
-// ======== Ken Reefs (Coral Sea) =========
-// Searched X out of Y images
+// ======== false, falsen Reefs (Coral Sea) =========
+// CLOUD_PIXEL_PERCENTAGE of 100%
+// Searched 2 out of 2 images
 // OK images
 utils.s2_composite_display_and_export(
   [
-    
+    "COPERNICUS/S2/20190220T234701_20190220T234701_T56KQB"
   ],
   false, false, REF1_OPTIONS);
-
-
-// Maybe images
-utils.s2_composite_display_and_export(
-  [
-    
-  ],
-  false, false, REF2_OPTIONS); 
-  
 
 
 
 // ======== Saumarez Reefs (South) =========
-// Searched X out of Y images
-// OK images
+// Searched 25 out of 75 images
 utils.s2_composite_display_and_export(
   [
-    
+    // Excellent
+		"COPERNICUS/S2/20160609T000222_20160609T000222_T56KNA", // High chlorophyll
+		"COPERNICUS/S2/20170729T000219_20170729T000217_T56KNA",
+		"COPERNICUS/S2/20180818T000241_20180818T000239_T56KNA",
+		// Good                                              
+		"COPERNICUS/S2/20170515T000221_20170515T000221_T56KNA",
+		"COPERNICUS/S2/20170719T000219_20170719T000218_T56KNA",
+		"COPERNICUS/S2/20180808T000241_20180808T000240_T56KNA"
   ],
   false, false, REF1_OPTIONS);
 
 
-// Maybe images
 utils.s2_composite_display_and_export(
   [
-    
+    //OK images
+		"COPERNICUS/S2/20160927T000212_20160927T000213_T56KNA",
+		"COPERNICUS/S2/20170214T000211_20170214T000212_T56KNA",
+		"COPERNICUS/S2/20170415T000221_20170415T000217_T56KNA",
+		"COPERNICUS/S2/20170525T000221_20170525T000220_T56KNA",
+		"COPERNICUS/S2/20170823T000221_20170823T000219_T56KNA",
+		"COPERNICUS/S2/20180714T000239_20180714T000238_T56KNA",
+		"COPERNICUS/S2/20180813T000239_20180813T000234_T56KNA"
   ],
   false, false, REF2_OPTIONS); 
 
 
 
 // ======== Wreck Reefs (Coral Sea) =========
-// Searched X out of Y images
+// Searched 25 out of 41 images
 // OK images
 utils.s2_composite_display_and_export(
   [
-    
+    //Good
+		"COPERNICUS/S2/20181003T235241_20181003T235241_T56KQA",
+		"COPERNICUS/S2/20181202T235241_20181202T235236_T56KQA",
+		// OK                                                
+		"COPERNICUS/S2/20180302T235239_20180302T235235_T56KQA",
+		"COPERNICUS/S2/20190908T235241_20190908T235244_T56KQA"
   ],
   false, false, REF1_OPTIONS);
 
 
-// Maybe images
 utils.s2_composite_display_and_export(
   [
-    
+    // OK
+		"COPERNICUS/S2/20170421T235251_20170421T235246_T56KQA",
+		"COPERNICUS/S2/20170511T235251_20170511T235247_T56KQA",
+		"COPERNICUS/S2/20170620T235241_20170620T235244_T56KQA",
+		"COPERNICUS/S2/20170923T235229_20170923T235231_T56KQA",
+		"COPERNICUS/S2/20171227T235241_20171227T235238_T56KQA",
+		"COPERNICUS/S2/20180131T235239_20180131T235238_T56KQA",
+		"COPERNICUS/S2/20180205T235241_20180205T235241_T56KQA"
   ],
   false, false, REF2_OPTIONS); 
 
 
 
 // ======== Cato Reef (Coral Sea) =========
-// Searched X out of Y images
-// OK images
+// Searched 30 out of 67 images
 utils.s2_composite_display_and_export(
   [
-    
+    // Excellent
+		"COPERNICUS/S2/20160923T235242_20160924T011248_T56KQV",
+		"COPERNICUS/S2/20170908T235241_20170908T235243_T56KQV",
+		"COPERNICUS/S2/20180829T235239_20180829T235235_T56KQV",
+		// Good                                              
+		"COPERNICUS/S2/20170814T235239_20170814T235242_T56KQV",
+		"COPERNICUS/S2/20170903T235239_20170903T235238_T56KQV",
+		"COPERNICUS/S2/20180715T235251_20180715T235246_T56KQV"
   ],
   false, false, REF1_OPTIONS);
 
 
-// Maybe images
 utils.s2_composite_display_and_export(
   [
-    
+    // OK
+		"COPERNICUS/S2/20180210T235239_20180210T235237_T56KQV",
+		"COPERNICUS/S2/20180521T235239_20180521T235242_T56KQV",
+		"COPERNICUS/S2/20180710T235249_20180710T235243_T56KQV",
+		"COPERNICUS/S2/20180730T235239_20180730T235241_T56KQV",
+		"COPERNICUS/S2/20190426T235249_20190426T235252_T56KQV",
+		"COPERNICUS/S2/20190506T235259_20190506T235253_T56KQV"
   ],
   false, false, REF2_OPTIONS); 
+  
+
+
+// ============= BONUS imagery ===============
+// This imagery was collected to ensure that no
+// reefs were missed. Essentially checking that
+// there are no shallow areas on the sea mounts
+// We also include imagery of a reef in PNG that is 
+// just outside the Coral Sea marine park, but very close
+// to Ashmore reef.
+
+
+// ======== Eastern Fields (PNG) - Far North =========
+// Searched 12 out of 12 images
+// CLOUD_PIXEL_PERCENTAGE 1%
+utils.s2_composite_display_and_export(
+  [
+// OK
+		"COPERNICUS/S2/20180417T003709_20180417T003703_T55LCJ",
+		"COPERNICUS/S2/20181213T003659_20181213T003658_T55LCJ",
+		"COPERNICUS/S2/20191223T003701_20191223T003659_T55LCJ",
+		"COPERNICUS/S2/20200216T003659_20200216T003700_T55LCJ",
+		"COPERNICUS/S2/20200913T003709_20200913T003707_T55LCJ"
+  ],
+  false, false, REF1_OPTIONS);
+
+
+utils.s2_composite_display_and_export(
+  [
+    // Maybe
+		"COPERNICUS/S2/20170127T003701_20170127T003755_T55LCJ",
+		"COPERNICUS/S2/20191203T003701_20191203T003703_T55LCJ",
+		"COPERNICUS/S2/20210506T003701_20210506T003703_T55LCJ"
+  ],
+  false, false, REF2_OPTIONS); 
+
+
+// ======== Fraser Seamount - South =========
+// Searched 20 out of 37 images
+// CLOUD_PIXEL_PERCENTAGE 0.3%
+utils.s2_composite_display_and_export(
+  [
+    // Excellent
+		"COPERNICUS/S2/20160923T235242_20160923T235240_T56KQU",
+		"COPERNICUS/S2/20170908T235241_20170908T235243_T56KQU",
+		"COPERNICUS/S2/20180829T235239_20180829T235235_T56KQU",
+		"COPERNICUS/S2/20190506T235259_20190506T235253_T56KQU"
+  ],
+  false, false, REF1_OPTIONS);
+
+
+utils.s2_composite_display_and_export(
+  [
+    // Good
+		"COPERNICUS/S2/20170829T235251_20170829T235245_T56KQU",
+		// OK                                               
+		"COPERNICUS/S2/20160406T235242_20160406T235242_T56KQU",
+		"COPERNICUS/S2/20170501T235251_20170501T235247_T56KQU",
+		"COPERNICUS/S2/20170809T235251_20170809T235246_T56KQU",
+		"COPERNICUS/S2/20180521T235239_20180521T235242_T56KQU"
+  ],
+  false, false, REF2_OPTIONS); 
+  
+// ======== U/N Sea mount - Central =========
+// Searched 6 out of 6 images
+utils.s2_composite_display_and_export(
+  [
+    // Good
+		"COPERNICUS/S2/20151128T234812_20170509T143613_T56KQE",
+		"COPERNICUS/S2/20160416T235041_20160417T061750_T56KQE"
+  ],
+  false, false, REF1_OPTIONS);
