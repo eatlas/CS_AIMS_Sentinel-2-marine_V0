@@ -1,1 +1,6 @@
 https://eatlas.org.au/data/uuid/f7468d15-12be-4e3f-a246-b2882a324f59 accessed on 7 Aug 2021
+
+Processing
+1. The full dataset was downloaded from https://github.com/justinelliotmeyers/Sentinel-2-Shapefile-Index.
+2. The sentinel_2_index_shapefile.shp was extracted from the downloaded dataset.
+3. sentinel_2_index_shapefile.shp was loaded into QGIS. This dataset was then exported as sentinel_2_index_shapfile_33S-33N-extract.shp, setting the Extent to North of 33 degrees and South of 33 degrees. This latitudinal range covers all coral reefs, but reduces the dataset file size to 13.1 MB from the original 28.3 MB.

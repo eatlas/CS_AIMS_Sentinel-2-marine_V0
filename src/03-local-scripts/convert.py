@@ -58,7 +58,8 @@ for srcFile in srcFiles:
 	# In these examples we want 'R1_DeepMarine', 'R2_DeepMarine', 'ReefTop' 
 	# Extract this to put each image style in a different directory.
 	# Assume that the naming convention is as in the example.
-	styles = ['R1_DeepMarine','R2_DeepMarine','R1_ReefTop','R1_Shallow','R1_TrueColour']
+	styles = ['R1_DeepMarine','R2_DeepMarine','R1_ReefTop','R1_Shallow','R1_TrueColour','R1_DeepFalse','R2_DeepFalse',
+		'DeepMarine','Shallow']
 	imgStyle = 'Unknown'
 	for style in styles:
 		if(style in fileName):
