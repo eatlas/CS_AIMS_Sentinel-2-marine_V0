@@ -1,6 +1,6 @@
-# Coral Sea Sentinel 2 marine composite images 2015 – 2021 (AIMS)
+# Coral Sea Sentinel 2 marine composite images 2015 – 2021 (AIMS) - V0
 
-Eric Lawrey – 22 September 2021
+Eric Lawrey – 21 November 2021
 
 Australian Institute of Marine Science
 
@@ -10,7 +10,17 @@ javascript code and the Python scripts for subsequent post processing
 of the imagery.
 
 This repository is intended to allow others to reproduce and extend this
-dataset.
+dataset. The scripts in this repository represent a draft version of this
+dataset, as the composite imagery was only created from a partial review (50-70%)
+of all the Sentinel 2 imagery. A future more refined version of this dataset 
+will be published in approximately 6 months. When it is available it will be linked to
+from here. 
+
+No functional upgrades will be made to this repository as it represents about
+snap shot of the processing that was used to create the dataset.
+
+More information about this dataset can be found on the 
+[Dataset metadata page](https://eatlas.org.au/data/uuid/2932dc63-9c9b-465f-80bf-09073aacaf1c)
 
 ## Setup and installation
 This dataset is created using the Google Earth Engine followed by some
@@ -38,14 +48,6 @@ The `03-local-scripts` contains the scripts for converting the output
 images from Google Earth Engine into the final imagery. More information
 can be found in the [READMD.md](./03-local-scripts) file.
 
-## Videos
-
-The following videos provide a walk through of the steps used to collate
-the imagery being used and to generate and export the final imagery.
-
-[![Video Step 1 Selecting Sentinel 2 images in GEE](./media/vimeo-thumbnail-648150983.jpg)](https://vimeo.com/648150983 "Step 1 Selecting Sentinel 2 images in GEE - Click to Watch!")
-
-[![Video Step 2 Creating composite images in GEE](./media/vimeo-thumbnail-648151138.jpg)](https://vimeo.com/6648151138 "Step 2 Creating composite images in GEE - Click to Watch!")
 ## Dataset description
 
 This dataset contains composite satellite images for the Coral Sea
@@ -58,11 +60,14 @@ to highlight different features.
 ![Preview map of this dataset](./examples/CS_AIMS_Sentinel-2-marine_V0_preview-map.jpg)
 A preview of the dataset and the image styles. 
 
-More information about this dataset can be found on the 
-[Dataset metadata page](https://eatlas.org.au/data/uuid/2932dc63-9c9b-465f-80bf-09073aacaf1c)
+## Videos
+
+The following videos provide a walk through of the using the Google Earth Engine 
+scripts to select good imagery then combine that imagery into a composite image 
+for download.
+
+[![Video Step 1 Selecting Sentinel 2 images in GEE](./media/vimeo-thumbnail-648150983.jpg)](https://vimeo.com/648150983 "Step 1 Selecting Sentinel 2 images in GEE - Click to Watch!")
+
+[![Video Step 2 Creating composite images in GEE](./media/vimeo-thumbnail-648151138.jpg)](https://vimeo.com/6648151138 "Step 2 Creating composite images in GEE - Click to Watch!")
 
 
-
-
-pandoc --extract-media=media -f docx -t markdown
-2021-09-22_CS_AIMS_Sentinel2-marine_V0_Metadata.docx -o metadata.md
