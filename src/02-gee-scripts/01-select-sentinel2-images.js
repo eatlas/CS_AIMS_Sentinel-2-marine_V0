@@ -1,8 +1,7 @@
 // Copyright 2021 Eric Lawrey - Australian Institute of Marine Science
 // MIT License https://mit-license.org/
 
-// This script is written to run on the Google Earth Engine at 
-// https://code.earthengine.google.com/8381c7f6846e4460a5271dd8469896ae
+// This script is written to run on the Google Earth Engine.
 //
 // This script allows the user to browse through the image catalog to
 // manually select the clearest images available. These can then be
@@ -13,6 +12,10 @@
 // Used to find the geometry of the selected images. For more info checkout
 // https://eatlas.org.au/data/uuid/f7468d15-12be-4e3f-a246-b2882a324f59
 var s2Tiles = ee.FeatureCollection("users/ericlawrey/World_ESA_Sentinel-2-tiling-grid");
+
+// === README: Change the path to your local copy of the utils code ====
+// The path to the util code must be an absolute path including the
+// username and repository
 var utils = require('users/ericlawrey/CS_AIMS_Sentinel2-marine_V0:utils');
  
 // Date range to iterate through the Sentinel 2 imagery.
@@ -73,7 +76,7 @@ var tileID;
 //tileID = '56KLG';     // North Lihou Reef (Coral Sea, Australia) - Central
                         // (Boundaries: 25, Dry Reefs: 15, Cays/Islands: 6 )
 //tileID = '56KMG';     // North East Lihou Reef tip (Coral Sea, Australia) - Central
-//tileID = '55KFA';     // Flinders, Dart Heralds Surprise (Coral Sea) - Central
+tileID = '55KFA';     // Flinders, Dart Heralds Surprise (Coral Sea) - Central
 //tileID = '55KGA';     // Malay Reef, Magdelaine Cays, Coringa Islet (South), Abington Reef, 
                         // U/N Reef (Coral Sea) - Central
 //tileID = '55KHA';     // Tregrosse Reefs, Diamond Islet West, Magdelaine Cays, Coringa Islet (South) 
@@ -145,15 +148,6 @@ var tileID;
 //tileID = '57KWS';   // Chesterfield Reefs
 //tileID = '57KWR';   // Chesterfield Reefs
 
-// Coral atolls in areas where the sea floor has been uplifted 
-//tileID = '';   // Palau
-
-
-tileID = '54LXQ';
-// Date range to iterate through the Sentinel 2 imagery.
-START_DATE = ee.Date('2021-10-25');
-END_DATE = ee.Date('2021-10-30');
-var CLOUDY_PIXEL_PERCENTAGE = 100;
 
 // Find the feature that corresponds to the specified tileID.
 // Filter to Australia. This is to reduce the number of tiles that need 

@@ -1,7 +1,11 @@
 // Copyright 2021 Eric Lawrey - Australian Institute of Marine Science
 //
 // MIT License https://mit-license.org/
-// This script is written to run on the Google Earth Engine 
+// This script is written to run on the Google Earth Engine. 
+
+// === README: Change the path to your local copy of the utils code ====
+// The path to the util code must be an absolute path including the
+// username and repository
 var utils = require('users/ericlawrey/CS_AIMS_Sentinel2-marine_V0:utils');
 
 // These are the options for the primary reference imagery.
@@ -10,7 +14,7 @@ var utils = require('users/ericlawrey/CS_AIMS_Sentinel2-marine_V0:utils');
 // to get the cleanest image.
 
 var REF1_OPTIONS = {
-  colourGrades: ['DeepFalse'],
+  colourGrades: ['TrueColour','DeepMarine','ReefTop','Shallow','DeepFalse'],
   exportBasename: 'CS_AIMS_Sentinel2-marine_V0_R1',
   exportFolder: 'EarthEngine/CS_AIMS_Sentinel2-marine_V0',
   scale: 10
@@ -21,17 +25,39 @@ var REF1_OPTIONS = {
 // is to provide a second set of imagery to determine if spots
 // in the imagery are artefacts (from clouds) or real features.
 var REF2_OPTIONS = {
-  colourGrades: ['DeepFalse'],
+  colourGrades: ['DeepFalse','DeepMarine'],
   exportBasename: 'CS_AIMS_Sentinel2-marine_V0_R2',
   exportFolder: 'EarthEngine/CS_AIMS_Sentinel2-marine_V0',
   scale: 10
 };
 
-// These options correspond to individual non-composite images.
-// These images show a single image with no cloud removal.
-// These images are typically used to highlight interesting
-// observations (such as tidal currents) of specific days.
-
+// ===============================================================
+//                      GENERAL OVERVIEW
+// ===============================================================
+// Each Sentinel 2 tile is processed using the utils.s2_composite_display_and_export
+// function. 
+// utils.s2_composite_display_and_export(imageIds, isDisplay, isExport, styleOptions)
+// It takes a list of image IDs to combine, along with
+// whether to display the composite, whether to export the composite
+// and what styles to generate.
+// By default each tile has isDisplay and isExport set to false
+// so that the script doesn't generate an overwhelming Number
+// of display layers and export tasks. Generally individual or
+// groups of tiles are worked on at one time. When they are complete
+// the isDisplay and isExport are set to false to indicate that they
+// have been processed.
+// All tiles in this script have already been processed and thus their
+// isDisplay and isExport variables are set to false. To reprocess
+// one or more of the tiles change these settings.
+//
+// GOTCHA 1: This script does not zoom to the location of the 
+// displayed composite images. You therefore need to know where
+// it is on the map and to manually pan there.
+// GOTCHA 2: Setting the isDisplay variable to true indicates that
+// the map layer for the composite should be created, but it isn't
+// enabled by default. Use the map UI to enable the layer. This 
+// behaviour was done so that if you enabled lots of layers to be
+// display then it would not immediately attempt to render all of them.
 
 // ===============================================================
 //
@@ -54,7 +80,7 @@ utils.s2_composite_display_and_export(
 		"COPERNICUS/S2/20200822T004711_20200822T004712_T55LBK",
 		"COPERNICUS/S2/20210802T004709_20210802T004707_T55LBK"
   ],
-  false, false, REF1_OPTIONS);
+  true, false, REF1_OPTIONS);
 
   
 // ======== Ashmore Reef (Coral Sea) - Far North =========
@@ -65,7 +91,7 @@ utils.s2_composite_display_and_export(
 		"COPERNICUS/S2/20200822T004711_20200822T004712_T54LZP",
 		"COPERNICUS/S2/20210603T004709_20210603T004707_T54LZP"
   ],
-  true, false, REF1_OPTIONS);
+  false, false, REF1_OPTIONS);
 
 // OK images
 utils.s2_composite_display_and_export(

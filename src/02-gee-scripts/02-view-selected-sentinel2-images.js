@@ -1,30 +1,36 @@
 // Copyright 2021 Eric Lawrey - Australian Institute of Marine Science
 // MIT License https://mit-license.org/
 
-// This script is written to run on the Google Earth Engine at 
-// https://code.earthengine.google.com/8381c7f6846e4460a5271dd8469896ae
+// This script is written to run on the Google Earth Engine.
 //
 // Use this script to browse through a specific set of Sentinel 2
 // images. This can be used to fine tune the selection of images obtained
 // using the 01-select-best-sentinel2-images script. This saves having to
 // step through all the non relevant images.
 
+// === README: Change the path to your local copy of the utils code ====
+// The path to the util code must be an absolute path including the
+// username and repository
 var utils = require('users/ericlawrey/CS_AIMS_Sentinel2-marine_V0:utils');
 
+// This is the list of images to look through. Think of this list as
+// as a temporary list of images that you are working on that you wish
+// to review. You can therefore delete all the ones currently in the
+// list and copy into the image IDs of the images you are interested
+// in reviewing.
 var IMAGE_IDS = 
   [
-//"COPERNICUS/S2/20180813T004711_20180813T004705_T54LZP",
-//"COPERNICUS/S2/20160903T002102_20160903T032316_T55LGC"
- "COPERNICUS/S2/20161215T003032_20161215T003028_T55LDE"
- //"COPERNICUS/S2/20160827T002712_20160827T051759_T55KDU",
- //"COPERNICUS/S2/20200727T002711_20200727T002713_T55KDU", //1 Low tide
-//		"COPERNICUS/S2/20200816T002711_20200816T002713_T55KDU" //2
-//"COPERNICUS/S2/20180812T002659_20180812T002702_T55LEC",
-//		"COPERNICUS/S2/20200822T004711_20200822T004712_T54LZP",
-//		"COPERNICUS/S2/20210603T004709_20210603T004707_T54LZP"
+		"COPERNICUS/S2/20190115T004709_20190115T004705_T55LBK",
+		"COPERNICUS/S2/20190510T004711_20190510T004710_T55LBK",
+		"COPERNICUS/S2/20190907T004711_20190907T004705_T55LBK",
+		"COPERNICUS/S2/20200613T004711_20200613T004712_T55LBK",
+		"COPERNICUS/S2/20200822T004711_20200822T004712_T55LBK",
+		"COPERNICUS/S2/20210802T004709_20210802T004707_T55LBK"
   ];
 
-var tilesGeometry = utils.get_s2_tiles_geometry(IMAGE_IDS, ee.Geometry.BBox(109, -33, 158, -7));
+// Find the bounds of all the tiles that the images are in. Restrict the search
+// to the tropics where reefs are found. This is to speed up the code.
+var tilesGeometry = utils.get_s2_tiles_geometry(IMAGE_IDS, ee.Geometry.BBox(-180, -33, 180, 33));
 
 var s2_cloud_collection = utils.get_s2_cloud_collection(IMAGE_IDS, tilesGeometry);
 
