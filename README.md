@@ -90,8 +90,10 @@ The following videos provide a walk through of the using the Google Earth Engine
 scripts to select good imagery then combine that imagery into a composite image 
 for download.
 
-[![Video Step 1 Selecting Sentinel 2 images in GEE](./media/vimeo-thumbnail-648150983.jpg)](https://vimeo.com/648150983 "Step 1 Selecting Sentinel 2 images in GEE - Click to Watch!")
+[![Video Step 1 Selecting Sentinel 2 images in GEE](./media/vimeo-thumbnail-648150983.jpg)](https://www.youtube.com/watch?v=D-CVQVNIjAs "Selecting clear Sentinel 2 imagery in Google Earth Engine (Coral Sea Mapping project) - Part 1 - Click to Watch!")
 
-[![Video Step 2 Creating composite images in GEE](./media/vimeo-thumbnail-648151138.jpg)](https://vimeo.com/6648151138 "Step 2 Creating composite images in GEE - Click to Watch!")
+[![Video Step 2 Creating composite images in GEE](./media/vimeo-thumbnail-648151138.jpg)](https://www.youtube.com/watch?v=bDF-Uq8Ljt8 "Viewing and exporting Sentinel 2 composite images in GEE (Coral Sea Mapping Project) - Part 2 - Click to Watch!")
+
+[![Video Sentinel 2 composite images in GEE](./media/2021-12-02_Selecting-best-imagery_Thumbnail.jpg)](https://www.youtube.com/watch?v=EqmLZmxZcQc "Selecting the best Coral Sea imagery (Coral Sea Mapping project) - Click to Watch!")
 
 
